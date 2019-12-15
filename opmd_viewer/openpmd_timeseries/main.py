@@ -38,7 +38,7 @@ class OpenPMDTimeSeries(InteractiveViewer):
     - slider
     """
 
-    def __init__(self, path_to_dir, check_all_files=True, dt=None):
+    def __init__(self, path_to_dir, check_all_files=True):
         """
         Initialize an openPMD time series
 
@@ -90,22 +90,25 @@ class OpenPMDTimeSeries(InteractiveViewer):
         self.avail_record_components = \
             params0['avail_record_components']
 
+
+        if not check_all_files:
+            t1, _ = read_openPMD_params(self.h5_files[1])
+            dt = (t1-t)/(self.iterations[1]-self.iterations[0])
+
         # - Extract the time for each file and, if requested, check
         #   that the other files have the same parameters
         for k in range(1, N_files):
-            if dt is None:
+            if check_all_files:
                 t, params = read_openPMD_params(self.h5_files[k], check_all_files)
                 self.t[k] = t
-            else:
-                self.t[k] = dt * self.iterations[k]
-
-            if check_all_files:
                 for key in params0.keys():
                     if params != params0:
                         print("Warning: File %s has different openPMD "
                               "parameters than the rest of the time series."
                               % self.h5_files[k])
                         break
+            else:
+                self.t[k] = dt * self.iterations[k]
 
         # - Set the current iteration and time
         self._current_i = 0
