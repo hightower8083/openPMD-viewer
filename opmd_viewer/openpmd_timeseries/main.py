@@ -11,7 +11,7 @@ License: 3-Clause-BSD-LBNL
 import numpy as np
 import h5py as h5
 from .utilities import list_h5_files, apply_selection, fit_bins_to_grid, \
-                        combine_cylindrical_components
+                        combine_cylindrical_components, listfast_h5_files
 from .plotter import Plotter
 from .particle_tracker import ParticleTracker
 from .data_reader.params_reader import read_openPMD_params
@@ -38,7 +38,7 @@ class OpenPMDTimeSeries(InteractiveViewer):
     - slider
     """
 
-    def __init__(self, path_to_dir, check_all_files=True):
+    def __init__(self, path_to_dir, check_all_files=True, dt=None):
         """
         Initialize an openPMD time series
 
@@ -60,7 +60,10 @@ class OpenPMDTimeSeries(InteractiveViewer):
             For fast access to the files, this can be changed to False.
         """
         # Extract the files and the iterations
-        self.h5_files, self.iterations = list_h5_files(path_to_dir)
+        if check_all_files:
+            self.h5_files, self.iterations = list_h5_files(path_to_dir)
+        else:
+            self.h5_files, self.iterations = listfast_h5_files(path_to_dir)
 
         # Check that there are HDF5 files in this directory
         if len(self.h5_files) == 0:
@@ -90,8 +93,12 @@ class OpenPMDTimeSeries(InteractiveViewer):
         # - Extract the time for each file and, if requested, check
         #   that the other files have the same parameters
         for k in range(1, N_files):
-            t, params = read_openPMD_params(self.h5_files[k], check_all_files)
-            self.t[k] = t
+            if dt is None:
+                t, params = read_openPMD_params(self.h5_files[k], check_all_files)
+                self.t[k] = t
+            else:
+                self.t[k] = dt * self.iterations[k]
+
             if check_all_files:
                 for key in params0.keys():
                     if params != params0:

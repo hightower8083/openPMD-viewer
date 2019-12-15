@@ -58,6 +58,43 @@ def list_h5_files(path_to_dir):
     return(filenames, iterations)
 
 
+def listfast_h5_files(path_to_dir):
+    """
+    Return a list of the hdf5 files in this directory,
+    and a list of the corresponding iterations
+
+    Parameter
+    ---------
+    path_to_dir : string
+        The path to the directory where the hdf5 files are.
+
+    Returns
+    -------
+    A tuple with:
+    - a list of strings which correspond to the absolute path of each file
+    - an array of integers which correspond to the iteration of each file
+    """
+    # Find all the files in the provided directory
+    all_files = os.listdir(path_to_dir)
+
+    # Select the hdf5 files
+    iters_and_names = []
+    for filename in all_files:
+        # Use only the name that end with .h5 or .hdf5
+        filename_ext = filename.split('.')[-1]
+        iteration =  int(filename.split('.')[0].split('data')[-1])
+        full_name = os.path.join(os.path.abspath(path_to_dir), filename)
+        iters_and_names.append( (iteration, full_name) )
+
+    # Sort the list of tuples according to the iteration
+    iters_and_names.sort()
+    # Extract the list of filenames and iterations
+    filenames = [name for (it, name) in iters_and_names]
+    iterations = np.array([it for (it, name) in iters_and_names])
+
+    return(filenames, iterations)
+
+
 def apply_selection(file_handle, data_list, select, species, extensions):
     """
     Select the elements of each particle quantities in data_list,
