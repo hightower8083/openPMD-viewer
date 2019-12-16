@@ -38,7 +38,7 @@ class OpenPMDTimeSeries(InteractiveViewer):
     - slider
     """
 
-    def __init__(self, path_to_dir, check_all_files=True):
+    def __init__(self, path_to_dir, check_all_files=True, fast_init=False):
         """
         Initialize an openPMD time series
 
@@ -60,10 +60,10 @@ class OpenPMDTimeSeries(InteractiveViewer):
             For fast access to the files, this can be changed to False.
         """
         # Extract the files and the iterations
-        if check_all_files:
-            self.h5_files, self.iterations = list_h5_files(path_to_dir)
-        else:
+        if fast_init:
             self.h5_files, self.iterations = listfast_h5_files(path_to_dir)
+        else:
+            self.h5_files, self.iterations = list_h5_files(path_to_dir)
 
         # Check that there are HDF5 files in this directory
         if len(self.h5_files) == 0:
@@ -91,24 +91,25 @@ class OpenPMDTimeSeries(InteractiveViewer):
             params0['avail_record_components']
 
 
-        if not check_all_files:
+        if fast_init:
             t1, _ = read_openPMD_params(self.h5_files[1])
             dt = (t1-t)/(self.iterations[1]-self.iterations[0])
 
         # - Extract the time for each file and, if requested, check
         #   that the other files have the same parameters
         for k in range(1, N_files):
-            if check_all_files:
+            if fast_init:
+                self.t[k] = dt * self.iterations[k]
+            else:
                 t, params = read_openPMD_params(self.h5_files[k], check_all_files)
                 self.t[k] = t
-                for key in params0.keys():
-                    if params != params0:
-                        print("Warning: File %s has different openPMD "
-                              "parameters than the rest of the time series."
-                              % self.h5_files[k])
-                        break
-            else:
-                self.t[k] = dt * self.iterations[k]
+                if check_all_files:
+                    for key in params0.keys():
+                        if params != params0:
+                            print("Warning: File %s has different openPMD "
+                               "parameters than the rest of the time series."
+                               % self.h5_files[k])
+                            break
 
         # - Set the current iteration and time
         self._current_i = 0
