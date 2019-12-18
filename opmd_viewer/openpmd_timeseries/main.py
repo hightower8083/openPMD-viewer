@@ -58,6 +58,9 @@ class OpenPMDTimeSeries(InteractiveViewer):
             (i.e. that they contain the same fields and particles,
             with the same metadata)
             For fast access to the files, this can be changed to False.
+        fast_init: bool, optional
+            Fast initialize mode without serial read of all files. Works only
+            when each file contains a single iteration.
         """
         # Extract the files and the iterations
         if fast_init:
@@ -90,9 +93,8 @@ class OpenPMDTimeSeries(InteractiveViewer):
         self.avail_record_components = \
             params0['avail_record_components']
 
-
         if fast_init:
-            t1, _ = read_openPMD_params(self.h5_files[1])
+            t1, _ = read_openPMD_params(self.h5_files[1], check_all_files)
             dt = (t1-t)/(self.iterations[1]-self.iterations[0])
 
         # - Extract the time for each file and, if requested, check
@@ -101,7 +103,8 @@ class OpenPMDTimeSeries(InteractiveViewer):
             if fast_init:
                 self.t[k] = dt * self.iterations[k]
             else:
-                t, params = read_openPMD_params(self.h5_files[k], check_all_files)
+                t, params = read_openPMD_params(self.h5_files[k],
+                                                check_all_files)
                 self.t[k] = t
                 if check_all_files:
                     for key in params0.keys():

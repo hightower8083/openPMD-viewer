@@ -58,15 +58,19 @@ def list_h5_files(path_to_dir):
     return(filenames, iterations)
 
 
-def listfast_h5_files(path_to_dir):
+def listfast_h5_files(path_to_dir, header_string='data'):
     """
     Return a list of the hdf5 files in this directory,
-    and a list of the corresponding iterations
+    and a list of the corresponding iterations without opening
+    the files
 
     Parameter
     ---------
     path_to_dir : string
         The path to the directory where the hdf5 files are.
+
+    header_string : string, optional
+        Common part of the file names preceding the iteration
 
     Returns
     -------
@@ -81,8 +85,7 @@ def listfast_h5_files(path_to_dir):
     iters_and_names = []
     for filename in all_files:
         # Use only the name that end with .h5 or .hdf5
-        filename_ext = filename.split('.')[-1]
-        iteration =  int(filename.split('.')[0].split('data')[-1])
+        iteration =  int(filename.split('.')[0].split(header_string)[-1])
         full_name = os.path.join(os.path.abspath(path_to_dir), filename)
         iters_and_names.append( (iteration, full_name) )
 
