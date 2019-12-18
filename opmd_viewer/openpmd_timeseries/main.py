@@ -58,9 +58,11 @@ class OpenPMDTimeSeries(InteractiveViewer):
             (i.e. that they contain the same fields and particles,
             with the same metadata)
             For fast access to the files, this can be changed to False.
+
         fast_init: bool, optional
             Fast initialize mode without serial read of all files. Works only
-            when each file contains a single iteration.
+            when each file contains a single iteration. Overrides the
+            `check_all_files=True` option.
         """
         # Extract the files and the iterations
         if fast_init:
