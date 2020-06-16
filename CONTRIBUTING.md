@@ -6,7 +6,7 @@
 
 In order to contribute, please fork the [main repository](https://github.com/openPMD/openPMD-viewer):
 
-- Click 'Fork' on the page of the main repository, in order to create a personal copy of this repository on your Github account. 
+- Click 'Fork' on the page of the main repository, in order to create a personal copy of this repository on your Github account.
 
 - Clone this copy to your local machine:
 ```
@@ -46,13 +46,10 @@ git pull git@github.com:openPMD/openPMD-viewer.git dev
 ```
 
 - Test and check your code:
-  - Use [pyflakes](https://pypi.python.org/pypi/pyflakes) and 
-[pep8](https://pypi.python.org/pypi/pep8) to detect any potential bug, and to 
-ensure that your code complies with some standard style conventions.
+  - Use [pyflakes](https://pypi.python.org/pypi/pyflakes) to detect any potential bug.
   ```
   cd openPMD-viewer/
-  pyflakes opmd_viewer
-  pep8 --ignore=E201,E202,E122,E127,E128,E131 opmd_viewer
+  pyflakes openpmd_viewer
   ```
   - Make sure that the tests pass (please install `wget` and `jupyter` before running the tests: `pip install wget jupyter`)
   ```
@@ -79,10 +76,10 @@ git push -u origin <NewBranchName>
 
 - Features that **modify** or **improve** the `OpenPMDTimeSeries` object
 should be implemented in the
-`opmd_viewer/opempmd_timeseries` folder. Features that **build upon** the
+`openpmd_viewer/opempmd_timeseries` folder. Features that **build upon** the
 `OpenPMDTimeSeries` object to create domain-specific analysis tools
 (e.g. laser diagnostics for PIC simulations) should be implemented in
-the `opmd_viewer/addons` folder.
+the `openpmd_viewer/addons` folder.
 
 - Document the functions and classes that you write, by using a
   [docstring](https://www.python.org/dev/peps/pep-0257/). List the
@@ -101,7 +98,7 @@ def get_data( dset, i_slice=None, pos_slice=None ) :
 
     i_slice: int, optional
        The index of the slice to be taken
-    
+
     pos_slice: int, optional
        The position at which to slice the array
        When None, no slice is performed

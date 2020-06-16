@@ -7,10 +7,10 @@ Copyright 2015-2016, openPMD-viewer contributors
 Authors: Remi Lehe, Axel Huebl
 License: 3-Clause-BSD-LBNL
 """
-import os
+
 import h5py
 import numpy as np
-from .utilities import is_scalar_record, get_shape, get_bpath
+from .utilities import is_scalar_record, get_shape, get_bpath, join_infile_path
 
 
 def read_openPMD_params(filename, extract_parameters=True):
@@ -45,8 +45,9 @@ def read_openPMD_params(filename, extract_parameters=True):
     bpath = f[get_bpath(f)]
     t = bpath.attrs["time"] * bpath.attrs["timeUnitSI"]
 
-    # If the user did not request more parameters, exit now.
+    # If the user did not request more parameters, close file and exit
     if not extract_parameters:
+        f.close()
         return(t, None)
 
     # Otherwise, extract the rest of the parameters
@@ -78,7 +79,7 @@ def read_openPMD_params(filename, extract_parameters=True):
 
         # Loop through the available fields
         for field_name in bpath[meshes_path].keys():
-            field = bpath[os.path.join(meshes_path, field_name)]
+            field = bpath[join_infile_path(meshes_path, field_name)]
             metadata = {}
             metadata['geometry'] = field.attrs['geometry'].decode()
             metadata['axis_labels'] = [ coord.decode() for coord in
@@ -123,7 +124,9 @@ def read_openPMD_params(filename, extract_parameters=True):
     if ('particlesPath' in f.attrs):        # Check for openPMD 1.1 files
         particle_path = f.attrs['particlesPath'].decode().strip('/')
         if particle_path in bpath.keys():   # Check for openPMD 1.0 files
-            particles_available = True
+            # Check that there is at least one species
+            if len(bpath[particle_path].keys()) > 0:
+                particles_available = True
     if particles_available:
         # Particles are present ; extract the species
         params['avail_species'] = []
@@ -133,7 +136,7 @@ def read_openPMD_params(filename, extract_parameters=True):
         record_components = {}
         # Go through all species
         for species_name in iter(params['avail_species']):
-            species = bpath[os.path.join(particle_path, species_name)]
+            species = bpath[join_infile_path(particle_path, species_name)]
             record_components[species_name] = []
 
             # Go through all the particle records of this species
@@ -150,7 +153,7 @@ def read_openPMD_params(filename, extract_parameters=True):
                     # Add each component of the vector record
                     for coord in record.keys():
                         record_components[species_name]. \
-                            append(os.path.join(record_name, coord))
+                            append(join_infile_path(record_name, coord))
             # Simplify the name of some standard openPMD records
             record_components[species_name] = \
                 simplify_record(record_components[species_name])

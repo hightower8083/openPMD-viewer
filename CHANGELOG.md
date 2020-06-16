@@ -1,5 +1,73 @@
 # Change Log / Release Log for openPMD-viewer
 
+## 1.0.1
+
+This is a bug-fix release.
+
+- Unreadable files are now skipped (instead of crashing the whole timeseries) ; see [#262](https://github.com/openPMD/openPMD-viewer/pull/262).
+
+- A bug related to units (microns vs meters) was fixed in `get_emittance` and `get_current` (see [#276](https://github.com/openPMD/openPMD-viewer/pull/276))
+
+- The quick-start notebook (`openPMD-visualization`) raised a warning saying
+`Notebook validation failed` in some cases. This was fixed (see [#274](https://github.com/openPMD/openPMD-viewer/pull/274))
+
+- When using the option `plot=True` with Python 2, openPMD-viewer crashed. This is now fixed (see [#271](https://github.com/openPMD/openPMD-viewer/pull/271)).
+
+## 1.0.0
+
+This version introduces major changes and breaks backward compatibility.
+
+Here is a list of the changes:
+- The import statement now uses `openpmd_viewer` instead of `opmd_viewer`, e.g.
+```
+from openpmd_viewer import OpenPMDTimeSeries
+```
+- For consistency, `ts.get_particle` now return particle positions in meters,
+instead of microns. For instance, in the code below, `x`, `y`, `z` will be in
+meters
+```
+x, y, z = ts.get_particle(['x', 'y', 'z'], iteration=1000)
+```
+- In `ts.get_field`, slicing can now be done in several directions, and for
+1d, 2d, 3d, and circ geometries. As a consequence, this breaks backward
+compatibility for 3d field:
+```get_field(field=field, coord=coord, iteration=iteration)```
+used to return the central slice along `y` while it now returns the full 3d field.
+In addition, the name of the argument of `get_field` that triggers slicing
+has been changed from `slicing_dir` to `slice_across` (and `slicing` has been
+changed to `slice_relative_position`).
+- `openPMD-viewer` does not rely on Cython anymore. Instead, it uses `numba`
+for functions that perform a substantial amount of computation.
+- A new function (`ts.iterate`) was introduced in order to quickly apply a
+given function to all iterations of a time series. See the docstring of
+`ts.iterate` for more information.
+- The function `get_laser_envelope` does not support the argument `index` anymore
+(which was effectively used in order to perform slicing). Instead, users should use
+the argument `slicing_dir`. In addition, `get_laser_envelope` now supports the
+argument `plot_range`.
+- The function `get_laser_waist` does not support the agument `slicing_dir` anymore.
+
+## 0.9.0
+
+This release adds two features:
+- Improved calculation of the laser envelope, using the Hilbert transform.
+- Reconstruction of full 3D field from a quasi-3D dataset, when passing `theta=None`.
+
+## 0.8.2
+
+This is a bug-fix release. It allows the slider to work properly in JupyterLab,
+by using the `%matplotlib widget` magic.
+
+## 0.8.1
+
+This version includes minor improvements to the viewer:
+- (Experiemental) support for Windows users
+- In the interactive Jupyter GUI, the user can now select the scale of the vertical axis.
+- The function `get_emittance` has more options (including calculation of the slice emttance)
+- The default `openPMD_notebook` now avoids warning messages about matplotlib inline, which used to occur even though `%matplotlib notebook` was used.
+
+Many thanks to @MaxThevenet and @AngelFP for their contributions to this release!
+
 ## 0.8
 
 This version introduces several improvements to the viewer:
@@ -85,7 +153,7 @@ This new version includes:
 - an additional option `use_field_mesh` when plotting the particle. When set
 to `True`, this option uses information from the field mesh to choose the parameters of the particle histograms (esp. the bins). This is useful in order to avoid plotting/binning artifacts (aliasing) when the particles are evenly spaced.
 
-In addition, the package `opmd_viewer` now has an attribute `__version__`.
+In addition, the module `openpmd_viewer` now has an attribute `__version__`.
 
 ## 0.3.3
 
